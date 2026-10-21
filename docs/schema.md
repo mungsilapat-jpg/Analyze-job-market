@@ -31,3 +31,8 @@ week_start, skill, job_count. This is what the dashboard reads.
   `tags` empty, so tags alone undercount.
 - Not sure yet how to handle postings that get edited after publishing.
   For now stg just keeps the newest copy.
+
+
+
+- Found ~150 duplicate rows in the first Arbeitnow load. New postings
+shift items between pages while paginating, so the same job can appear on two pages. Now deduped within each batch before insert.
