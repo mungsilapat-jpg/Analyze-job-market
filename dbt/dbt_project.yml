@@ -3,8 +3,11 @@ version: "1.0.0"
 profile: job_market
 
 model-paths: ["models"]
+seed-paths: ["seeds"]
 
 models:
   job_market:
     staging:
       +materialized: view
+    marts:
+      +materialized: table

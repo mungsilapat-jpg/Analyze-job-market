@@ -1,0 +1,32 @@
+skill,category,pattern
+sql,language,\bsql\b
+python,language,\bpython\b
+scala,language,\bscala\b
+java,language,\bjava\b
+spark,processing,\b(py)?spark\b
+kafka,streaming,\bkafka\b
+flink,streaming,\bflink\b
+airflow,orchestration,\bairflow\b
+dagster,orchestration,\bdagster\b
+dbt,transformation,\bdbt\b
+snowflake,warehouse,\bsnowflake\b
+bigquery,warehouse,\bbigquery\b
+redshift,warehouse,\bredshift\b
+databricks,platform,\bdatabricks\b
+postgresql,database,\bpostgres(ql)?\b
+mysql,database,\bmysql\b
+mongodb,database,\bmongo(db)?\b
+aws,cloud,\baws\b|amazon web services
+azure,cloud,\bazure\b
+gcp,cloud,\bgcp\b|google cloud
+docker,devops,\bdocker\b
+kubernetes,devops,\bkubernetes\b|\bk8s\b
+terraform,devops,\bterraform\b
+git,devops,\bgit\b|github|gitlab
+tableau,bi,\btableau\b
+power bi,bi,power ?bi
+looker,bi,\blooker\b
+pandas,library,\bpandas\b
+pytorch,ml,\bpytorch\b
+tensorflow,ml,\btensorflow\b
+llm,ml,\bllms?\b|large language model
