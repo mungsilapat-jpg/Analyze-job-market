@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
-import pandas as pd
+
 import requests
 import re
 
@@ -66,25 +66,34 @@ def hash_input(source, job):
     if source == "arbeitnow" and job.get("description"):
         job = {**job, "description": ARBEITNOW_FOOTER.sub("", job["description"])}
     return json.dumps(job, sort_keys=True, ensure_ascii=False)
-def to_dataframe(source, items, ingested_at):
+def to_rows(source, items, ingested_at):
     rows = []
+    seen = set()
     for job_id, job in items:
-        payload = hash_input(source, job)
-        rows.append({
-            "source": source,
-            "job_id": job_id,
-            "payload": payload,
-            "payload_hash": hashlib.md5(hash_input(source, job).encode("utf-8")).hexdigest(),
-            "ingested_at": ingested_at,
-        })
-    return pd.DataFrame(rows).drop_duplicates(
-        subset=["source", "job_id", "payload_hash"]
-    )
+        payload = json.dumps(job, sort_keys=True, ensure_ascii=False)
+        payload_hash = hashlib.md5(hash_input(source, job).encode("utf-8")).hexdigest()
+        # same job can show up on two pages while paginating
+        if (job_id, payload_hash) in seen:
+            continue
+        seen.add((job_id, payload_hash))
+        rows.append((source, job_id, payload, payload_hash, ingested_at))
+    return rows
 
-
-def load(con, df):
+def load(con, rows):
+    if not rows:
+        return 0
     before = con.execute("SELECT count(*) FROM raw_jobs").fetchone()[0]
-    con.register("incoming", df)
+
+    con.execute("""
+        CREATE OR REPLACE TEMP TABLE incoming (
+            source VARCHAR,
+            job_id VARCHAR,
+            payload VARCHAR,
+            payload_hash VARCHAR,
+            ingested_at TIMESTAMP
+        )
+    """)
+    con.executemany("INSERT INTO incoming VALUES (?, ?, ?, ?, ?)", rows)
     con.execute("""
         INSERT INTO raw_jobs
         SELECT i.source, i.job_id, i.payload::JSON, i.payload_hash, i.ingested_at
@@ -96,9 +105,8 @@ def load(con, df):
               AND r.payload_hash = i.payload_hash
         )
     """)
-    con.unregister("incoming")
-    return con.execute("SELECT count(*) FROM raw_jobs").fetchone()[0] - before
 
+    return con.execute("SELECT count(*) FROM raw_jobs").fetchone()[0] - before
 
 def main():
     ingested_at = datetime.now(timezone.utc).replace(tzinfo=None)  # UTC
@@ -121,7 +129,7 @@ def main():
         except Exception as e:
             log.error("%s failed, skipping: %s", source, e)
             continue
-        inserted = load(con, to_dataframe(source, items, ingested_at))
+        inserted = load(con, to_rows(source, items, ingested_at))
         log.info("%s: fetched %s, inserted %s new rows", source, len(items), inserted)
 
     con.close()

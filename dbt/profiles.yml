@@ -1,0 +1,7 @@
+job_market:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/jobs.duckdb
+      threads: 1
