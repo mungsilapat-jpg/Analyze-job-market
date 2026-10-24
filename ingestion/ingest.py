@@ -1,16 +1,17 @@
 import hashlib
 import json
 import logging
+import os
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import duckdb
-
 import requests
-import re
 
-DB_PATH = Path("data/jobs.duckdb")
+# local file by default; set JOBS_DB=md:job_market to write to MotherDuck
+DB_PATH = os.environ.get("JOBS_DB", "data/jobs.duckdb")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -66,6 +67,8 @@ def hash_input(source, job):
     if source == "arbeitnow" and job.get("description"):
         job = {**job, "description": ARBEITNOW_FOOTER.sub("", job["description"])}
     return json.dumps(job, sort_keys=True, ensure_ascii=False)
+
+
 def to_rows(source, items, ingested_at):
     rows = []
     seen = set()
@@ -78,6 +81,7 @@ def to_rows(source, items, ingested_at):
         seen.add((job_id, payload_hash))
         rows.append((source, job_id, payload, payload_hash, ingested_at))
     return rows
+
 
 def load(con, rows):
     if not rows:
@@ -108,11 +112,15 @@ def load(con, rows):
 
     return con.execute("SELECT count(*) FROM raw_jobs").fetchone()[0] - before
 
+
 def main():
     ingested_at = datetime.now(timezone.utc).replace(tzinfo=None)  # UTC
 
-    DB_PATH.parent.mkdir(exist_ok=True)
-    con = duckdb.connect(str(DB_PATH))
+    if not DB_PATH.startswith("md:"):
+        Path(DB_PATH).parent.mkdir(exist_ok=True)
+    con = duckdb.connect(DB_PATH)
+    log.info("writing to %s", DB_PATH)
+
     con.execute("""
         CREATE TABLE IF NOT EXISTS raw_jobs (
             source VARCHAR,
