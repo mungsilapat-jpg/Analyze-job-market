@@ -106,6 +106,7 @@ trend = query("""
     ORDER BY week_start
 """)
 trend = trend[trend.skill.isin(chosen)]
+trend["week"] = trend.week_start.astype("datetime64[ns]").dt.strftime("%d %b")
 
 if trend.empty:
     st.info("Pick at least one skill.")
@@ -114,7 +115,7 @@ else:
         alt.Chart(trend)
         .mark_line(point=True)
         .encode(
-            x=alt.X("week_start:T", title="Week starting"),
+            x=alt.X("week:O", title="Week starting", sort=None, axis=alt.Axis(labelAngle=0)),
             y=alt.Y("pct_of_jobs:Q", title="% of that week's data jobs"),
             color=alt.Color("skill:N", title="Skill"),
             tooltip=["week_start", "skill", "pct_of_jobs", "job_count", "total_jobs"],
