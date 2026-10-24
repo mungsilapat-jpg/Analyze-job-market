@@ -5,3 +5,7 @@ job_market:
       type: duckdb
       path: ../data/jobs.duckdb
       threads: 1
+    prod:
+      type: duckdb
+      path: "md:job_market"
+      threads: 1
