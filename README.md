@@ -132,3 +132,8 @@ docs/             schema notes and screenshots
 - Add a Thai job board as a third source
 - Alert on Slack or email when a test fails, not just a red run
 
+## Data sources
+
+Job data comes from the public APIs of [Arbeitnow](https://www.arbeitnow.com)
+and [Remotive](https://remotive.com). Only aggregated skill counts are shown;
+raw postings are not published.
