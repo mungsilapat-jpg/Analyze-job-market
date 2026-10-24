@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fct_job_skills
+    description: One row per (data job, skill) pair.
+    columns:
+      - name: job_id
+        data_tests:
+          - not_null
+      - name: skill
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('skills')
+                field: skill
+
+  - name: mart_skill_trends
+    description: Data jobs per skill per week. Read by the dashboard.
+    columns:
+      - name: week_start
+        data_tests:
+          - not_null
+      - name: skill
+        data_tests:
+          - not_null
+      - name: job_count
+        data_tests:
+          - not_null

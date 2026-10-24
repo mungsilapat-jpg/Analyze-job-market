@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_jobs
+    description: One row per job (latest version), both sources combined and cleaned.
+    columns:
+      - name: source
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["remotive", "arbeitnow"]
+      - name: job_id
+        data_tests:
+          - not_null
+      - name: title
+        data_tests:
+          - not_null
+      - name: published_at
+        data_tests:
+          - not_null
+      - name: seniority
+        description: Guessed from the title.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["intern", "junior", "senior", "unspecified"]
+      - name: is_data_job
+        description: Keyword match on the title.
+        data_tests:
+          - not_null

@@ -1,0 +1,10 @@
+version: 2
+
+seeds:
+  - name: skills
+    description: Skill names and the regex used to find them in job text.
+    columns:
+      - name: skill
+        data_tests:
+          - unique
+          - not_null

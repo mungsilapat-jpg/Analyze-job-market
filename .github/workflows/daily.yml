@@ -27,8 +27,6 @@ jobs:
       - name: Ingest
         run: python ingestion/ingest.py
 
-      - name: Transform with dbt
+      - name: Build and test with dbt
         working-directory: dbt
-        run: |
-          dbt seed --target prod
-          dbt run --target prod
+        run: dbt build --target prod
