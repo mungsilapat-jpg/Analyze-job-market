@@ -137,3 +137,6 @@ docs/             schema notes and screenshots
 Job data comes from the public APIs of [Arbeitnow](https://www.arbeitnow.com)
 and [Remotive](https://remotive.com). Only aggregated skill counts are shown;
 raw postings are not published.
+
+
+**Live dashboard:** https://job-skills.streamlit.app
